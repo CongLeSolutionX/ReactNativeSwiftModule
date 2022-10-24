@@ -7,6 +7,10 @@
  */
 
 import React from 'react';
+
+import { NativeModules } from "react-native";
+const { CustomMethods } = NativeModules;
+
 import type {Node} from 'react';
 import {
   SafeAreaView,
@@ -16,6 +20,7 @@ import {
   Text,
   useColorScheme,
   View,
+  Button
 } from 'react-native';
 
 import {
@@ -56,10 +61,43 @@ const Section = ({children, title}): Node => {
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
-
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  // Interact with native methods in the Swift CustomMethods module
+  const nativeSimpleMethod = () => {
+   CustomMethods.simpleMethod()
+    console.log("The simple method is called and printed on the terminal")
+  }
+
+  const nativeSimpleMethodReturns = () => {
+    CustomMethods.simpleMethodReturns(result => {
+      alert(result)
+    })
+  }
+
+  const nativeSimpleMethodWithParams = () => {
+      CustomMethods.simpleMethodWithParams(
+        'exampleParameter',
+        result => {
+          alert(result)
+        }
+      )
+    }
+
+  const nativeResolvePromise = async () => {
+    const result = await CustomMethods.resolvePromise()
+    alert(result)
+  }
+
+  const nativeRejectPromise = async () => {
+    try {
+      await CustomMethods.rejectPromise()
+    } catch (err) {
+      alert(err)
+    }
+  }
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -89,6 +127,30 @@ const App: () => Node = () => {
             Read the docs to discover what to do next:
           </Section>
           <LearnMoreLinks />
+
+          <Section title="Buttons call native methods in Swift module">
+            Click on each button below, it will return string value from native Swift method:
+            <Button
+            onPress={() => nativeSimpleMethod() }
+            title="Simple Method"
+            />
+            <Button
+            onPress={() => nativeSimpleMethodReturns() }
+            title="Simple Method Returns"
+            />
+            <Button
+            onPress={() => nativeSimpleMethodWithParams() }
+            title="Simple Method With Params"
+            />
+            <Button
+            onPress={() => nativeResolvePromise() }
+            title="Resolve Promise"
+            />
+            <Button
+            onPress={() => nativeRejectPromise() }
+            title="Reject Promise"
+            />
+          </Section>
         </View>
       </ScrollView>
     </SafeAreaView>
